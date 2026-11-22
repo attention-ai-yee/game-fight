@@ -1,0 +1,19 @@
+{
+  "name": "game-fight",
+  "private": true,
+  "description": "Game Fight：战斗核心（纯逻辑）、浏览器原型、测试与工具。正式游戏工程以后放在 client/（Cocos Creator）。",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "proto": "node tools/build-proto.mjs",
+    "proto:watch": "node tools/build-proto.mjs --watch",
+    "sim": "esbuild tools/sim.ts --bundle --platform=node --outfile=dist/sim.cjs --log-level=warning && node dist/sim.cjs"
+  },
+  "devDependencies": {
+    "@fontsource/zcool-kuaile": "5.3.0",
+    "@types/node": "22.10.2",
+    "esbuild": "0.24.0",
+    "typescript": "5.6.3",
+    "vitest": "2.1.8"
+  }
+}
