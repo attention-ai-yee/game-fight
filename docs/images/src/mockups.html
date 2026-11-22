@@ -15,6 +15,7 @@
 <body>
 <svg id="main" width="900" height="720" viewBox="0 0 900 720"></svg>
 <svg id="combo" width="900" height="580" viewBox="0 0 900 580"></svg>
+<svg id="horizontal" width="1100" height="720" viewBox="0 0 1100 720"></svg>
 <script>
 const C = {
   ink: '#2a2440', grass: '#86c86f', grass2: '#6db25c', road: '#ecd6a8', roadEdge: '#c9a874',
@@ -367,6 +368,153 @@ function lane(w, top, bottom, topW, botW, deco = true) {
     s += `<text x="${x + W / 2}" y="${y + H + 58}" font-size="13" fill="#5d5770" text-anchor="middle">${caps[i][1]}</text>`;
     s += `<text x="${x + W / 2}" y="${y + H + 76}" font-size="13" fill="#5d5770" text-anchor="middle">${caps[i][2]}</text>`;
     if (i < 2) s += `<path d="M${x + W + 12},${y + H / 2} l18,0 m-7,-7 l7,7 l-7,7" stroke="#b9b2c8" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  });
+  svg.innerHTML = s;
+})();
+
+// ---------- 图 3：竖屏 + 横版战斗 ----------
+function heroSide(type, x, y, k = 1) {
+  let g = `<g transform="translate(${x} ${y}) scale(${k})">`;
+  g += `<ellipse cx="0" cy="30" rx="22" ry="6" fill="rgba(0,0,0,.22)"/>`;
+  g += `<path d="M-13,30 L15,30 L9,-4 L-9,-4 Z" fill="${C.blue}" stroke="${C.ink}" stroke-width="2"/>`;
+  g += `<path d="M-13,30 L15,30 L13,23 L-12,23 Z" fill="#ffd34d" stroke="${C.ink}" stroke-width="1.5"/>`;
+  g += `<line x1="14" y1="28" x2="24" y2="-30" stroke="#7a4a26" stroke-width="4" stroke-linecap="round"/>`;
+  g += `<circle cx="25" cy="-34" r="10" fill="rgba(255,160,60,.35)"/><circle cx="25" cy="-34" r="6" fill="${C.orange}" stroke="#c4501a" stroke-width="1.5"/>`;
+  g += `<path d="M4,6 L20,-4" stroke="${C.blue}" stroke-width="6" stroke-linecap="round"/><circle cx="20" cy="-4" r="3.5" fill="${C.skin}" stroke="${C.ink}" stroke-width="1.2"/>`;
+  g += `<circle cx="0" cy="-14" r="11" fill="${C.skin}" stroke="${C.ink}" stroke-width="2"/>`;
+  g += `<circle cx="5" cy="-14" r="1.8" fill="${C.ink}"/><path d="M3,-8 q3,2 6,0" stroke="${C.ink}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`;
+  g += `<path d="M-11,-17 Q-6,-10 -2,-18" fill="#7a5634"/>`;
+  g += `<ellipse cx="-1" cy="-21" rx="16" ry="4.5" fill="#5b3fa8" stroke="${C.ink}" stroke-width="2"/>`;
+  g += `<path d="M-10,-22 Q-8,-40 -20,-50 Q-2,-44 8,-22 Z" fill="#6b4cc0" stroke="${C.ink}" stroke-width="2" stroke-linejoin="round"/>`;
+  return g + '</g>';
+}
+function wall(x0, top, bottom, w) {
+  let g = `<rect x="${x0}" y="${top}" width="${w}" height="${bottom - top}" fill="#b9b2a3" stroke="${C.ink}" stroke-width="2"/>`;
+  for (let i = 0; i < 3; i++) g += `<rect x="${x0 + 2 + i * (w / 3)}" y="${top - 10}" width="${w / 3 - 5}" height="12" fill="#b9b2a3" stroke="${C.ink}" stroke-width="2"/>`;
+  for (let yy = top + 16; yy < bottom - 4; yy += 16) g += `<line x1="${x0}" y1="${yy}" x2="${x0 + w}" y2="${yy}" stroke="#958d7e" stroke-width="1.5"/>`;
+  g += `<path d="M${x0 + w * 0.2},${bottom} L${x0 + w * 0.2},${bottom - 34} Q${x0 + w * 0.5},${bottom - 50} ${x0 + w * 0.8},${bottom - 34} L${x0 + w * 0.8},${bottom} Z" fill="#5a4636" stroke="${C.ink}" stroke-width="2"/>`;
+  g += `<line x1="${x0 + w / 2}" y1="${top - 10}" x2="${x0 + w / 2}" y2="${top - 42}" stroke="#7a4a26" stroke-width="3"/><path d="M${x0 + w / 2},${top - 41} l20,6 l-20,7 Z" fill="${C.red}" stroke="${C.ink}" stroke-width="1.5"/>`;
+  return g;
+}
+// 横版战斗场景：区域 (0,y0)-(W,y1)。k = 整体放大（高光时 >1）
+function hbattle(W, y0, y1, k, chainN, opt = {}) {
+  let p = '';
+  const H = y1 - y0;
+  p += `<defs><linearGradient id="sky${k}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fd0ff"/><stop offset="1" stop-color="#dff3ff"/></linearGradient></defs>`;
+  p += `<rect x="0" y="${y0}" width="${W}" height="${H}" fill="url(#sky${k})"/>`;
+  const gy = y0 + H * 0.52;
+  p += `<ellipse cx="${W * 0.25}" cy="${gy + 6}" rx="${W * 0.4}" ry="${H * 0.16}" fill="#9fd88f"/><ellipse cx="${W * 0.8}" cy="${gy + 10}" rx="${W * 0.45}" ry="${H * 0.14}" fill="#8acb7b"/>`;
+  p += `<circle cx="${W * 0.82}" cy="${y0 + H * 0.16}" r="${16 * k}" fill="#fff4b0"/>`;
+  p += `<rect x="0" y="${gy}" width="${W}" height="${y1 - gy}" fill="${C.grass}"/>`;
+  const rows = [gy + (y1 - gy) * 0.2, gy + (y1 - gy) * 0.5, gy + (y1 - gy) * 0.8];
+  p += `<path d="M0,${rows[0] - 10 * k} L${W},${rows[0] - 14 * k} L${W},${rows[2] + 16 * k} L0,${rows[2] + 14 * k} Z" fill="${C.road}"/>`;
+  p += `<path d="M0,${rows[0] - 10 * k} L${W},${rows[0] - 14 * k} M0,${rows[2] + 14 * k} L${W},${rows[2] + 16 * k}" stroke="${C.roadEdge}" stroke-width="4"/>`;
+  const wallW = opt.wallW ?? 42 * k;
+  if (!opt.noWall) p += wall(0, y0 + H * 0.34, rows[2] + 14 * k, wallW);
+  const sc = [0.78, 0.9, 1.02].map((v) => v * k);
+  const xs = [[0.42, 0.53, 0.65, 0.77, 0.9], [0.38, 0.5, 0.62, 0.74, 0.87], [0.4, 0.52, 0.64, 0.76, 0.93]];
+  const cols = [C.purple, C.green];
+  const foes = [];
+  xs.forEach((row, ri) => row.forEach((fx, ci) => foes.push({ x: fx * W, y: rows[ri], s: sc[ri], c: cols[(ri + ci) % 2] })));
+  foes.sort((a, b) => a.x - b.x);
+  const exploded = foes.slice(0, chainN);
+  // 导火索
+  const rest = foes.slice(Math.max(0, chainN - 1));
+  if (rest.length > 1) p += `<polyline points="${rest.map((f) => `${f.x},${f.y}`).join(' ')}" fill="none" stroke="${C.orange}" stroke-width="${2.5 * k}" stroke-dasharray="${5 * k} ${4 * k}" opacity=".85"/>`;
+  [...foes].sort((a, b) => a.y - b.y).forEach((f) => {
+    const done = exploded.includes(f);
+    p += enemy(f.x, f.y, f.s * 1.05, f.c, done ? null : 'fire', done ? null : 1 + ((f.x | 0) % 3));
+  });
+  exploded.forEach((f, i) => { p += burst(f.x, f.y - 3 * k, (12 + (i % 3) * 3) * k + 4, i === exploded.length - 1 ? '#fff6c8' : '#ffd23f', '#ff6a1a', 10); });
+  if (!opt.noHero) { p += heroSide('mage', wallW + 40 * k, rows[1] - 2 * k, 0.95 * k); p += fireball(wallW + 74 * k, rows[1] - 30 * k, 0.8 * k); }
+  return { svg: p, rows, foes };
+}
+(function horizontal() {
+  const W = 375, H = 667;
+  let p = `<rect width="${W}" height="${H}" fill="${C.panel2}"/>`;
+  const B = hbattle(W, 50, 372, 1, 5);
+  p += B.svg;
+  p += hpBar(21, 168, 40, 0.7, '#5fd35f') + txt(21, 162, '城墙', 10, '#fff', { sw: 2.5 });
+  p += txt(220, 116, '连锁 ×23', 30, C.orange, { sw: 6, rot: -4, strokeColor: '#3a1a10' });
+  p += txt(222, 146, '9,840', 22, '#ffe14d', { sw: 4.5, rot: -4, strokeColor: '#3a1a10' });
+  p += txt(300, 196, '1,284', 14, '#fff', { sw: 3 }) + txt(160, 210, '暴击 2,960', 15, '#ffe14d', { sw: 3 });
+  for (const [x, y, r] of [[176, 240, 6.5], [168, 196, 6], [160, 140, 5.5], [154, 92, 5]]) p += coin(x, y, r);
+  p += `<rect x="314" y="58" width="52" height="20" rx="10" fill="rgba(20,22,40,.7)"/><circle cx="352" cy="68" r="6" fill="#5fd35f"/>${txt(331, 72.5, '自动', 11, '#fff', { stroke: false })}`;
+  // 顶栏
+  p += `<rect width="${W}" height="50" fill="${C.panel}"/>`;
+  p += `<rect x="10" y="12" width="104" height="26" rx="13" fill="#3e4366"/>${txt(62, 30, '第2章 · 第7关', 13, '#fff', { stroke: false })}`;
+  p += coin(150, 25, 9) + txt(162, 30.5, '12.4万', 15, C.gold, { anchor: 'start', stroke: false });
+  p += txt(300, 30.5, 'Lv.18', 16, '#fff', { stroke: false });
+  p += `<circle cx="352" cy="25" r="10" fill="none" stroke="#c8cbe0" stroke-width="3" stroke-dasharray="4 2.3"/><circle cx="352" cy="25" r="3.5" fill="#c8cbe0"/>`;
+  p += `<rect x="0" y="47" width="${W}" height="4" fill="#141626"/><rect x="0" y="47" width="${W * 0.62}" height="4" fill="#b07cff"/>`;
+  // 英雄栏
+  p += `<rect x="0" y="372" width="${W}" height="84" fill="${C.panel}"/><rect x="0" y="372" width="${W}" height="3" fill="#141626"/>`;
+  p += portrait('sword', 42, 408, 22, { cd: 0.5, cdText: '3', hp: 0.8 });
+  p += portrait('mage', 100, 408, 22, { active: true, hp: 0.9, tag: '场上' });
+  p += portrait('archer', 158, 408, 22, { cd: 0.5, cdText: '3', hp: 1 });
+  p += txt(100, 450, '点头像换人', 10, '#9ea3c7', { stroke: false });
+  p += ultButton(320, 410, 28, 0.7);
+  // 成长区
+  p += `<rect x="0" y="456" width="${W}" height="144" fill="#f3efe6"/>`;
+  p += txt(16, 482, '符文', 14, C.ink, { anchor: 'start', stroke: false });
+  [['#5a86e6', '燃'], ['#9a62d9', '冰'], ['#f0b429', '链'], [null, '+']].forEach(([c, t], i) => {
+    const x = 60 + i * 44;
+    p += `<rect x="${x}" y="464" width="36" height="36" rx="8" fill="${c || '#e2ddd2'}" stroke="${c ? C.ink : '#c9c2b4'}" stroke-width="2" ${c ? '' : 'stroke-dasharray="4 3"'}/>`;
+    p += txt(x + 18, 488, t, 15, c ? '#fff' : '#a49c8c', { stroke: !!c, sw: 3 });
+  });
+  p += `<rect x="252" y="464" width="40" height="34" rx="5" fill="#d08a3a" stroke="${C.ink}" stroke-width="2"/><rect x="252" y="464" width="40" height="11" fill="#e8a24a" stroke="${C.ink}" stroke-width="1.5"/><rect x="268" y="470" width="8" height="10" fill="${C.gold}" stroke="${C.ink}" stroke-width="1"/>`;
+  p += txt(286, 462, '×3', 12, '#fff', { sw: 3 });
+  p += `<rect x="300" y="468" width="62" height="28" rx="14" fill="${C.gold}" stroke="${C.ink}" stroke-width="2"/>${txt(331, 487, '开宝箱', 13, C.ink, { stroke: false })}`;
+  [['攻击', 'Lv.24', '+4%', '860'], ['城墙', 'Lv.12', '+6%', '1.2万']].forEach(([n, lv, d, cost], i) => {
+    const y = 512 + i * 42;
+    p += `<rect x="10" y="${y}" width="${W - 20}" height="36" rx="10" fill="#fff" stroke="#e0d9cb" stroke-width="1.5"/>`;
+    p += txt(26, y + 23, n, 14, C.ink, { anchor: 'start', stroke: false }) + txt(66, y + 23, lv, 12, '#8a8296', { anchor: 'start', stroke: false }) + txt(120, y + 23, d, 12, '#3f9a4c', { anchor: 'start', stroke: false });
+    p += `<rect x="262" y="${y + 5}" width="98" height="26" rx="13" fill="${C.gold}" stroke="${C.ink}" stroke-width="1.5"/>`;
+    p += coin(282, y + 18, 6) + txt(294, y + 23, cost, 13, C.ink, { anchor: 'start', stroke: false });
+  });
+  // 导航
+  p += `<rect x="0" y="600" width="${W}" height="67" fill="${C.panel2}"/>`;
+  ['战斗', '英雄', '符文', '宝箱', '更多'].forEach((n, i) => { const x = 37.5 + i * 75, col = i === 0 ? C.gold : '#9ea3c7'; p += `<circle cx="${x}" cy="626" r="9" fill="${col}" opacity="${i === 0 ? 1 : 0.7}"/>` + txt(x, 656, n, 12, col, { stroke: false }); });
+  p += badge(150, 70, 1) + badge(54, 152, 2) + badge(296, 92, 3) + badge(16, 392, 4) + badge(236, 470, 5);
+
+  // 高光全屏（右侧小手机）
+  let q = `<rect width="${W}" height="${H}" fill="${C.panel2}"/>`;
+  const Bz = hbattle(W, 0, H, 1.75, 9, { noWall: true, noHero: true });
+  q += Bz.svg;
+  q += `<g transform="translate(-30 0)">${heroSide('mage', 70, Bz.rows[1] - 4, 1.7)}</g>`;
+  q += txt(190, 210, '连锁 ×48', 54, C.orange, { sw: 9, rot: -5, strokeColor: '#3a1a10' });
+  q += txt(196, 270, '36,720', 40, '#ffe14d', { sw: 7, rot: -5, strokeColor: '#3a1a10' });
+  for (const [x1, y1, x2, y2] of [[8, 60, 8, 150], [16, 90, 16, 170], [W - 8, 420, W - 8, 520], [W - 16, 450, W - 16, 540]]) q += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#fff" stroke-width="5" stroke-linecap="round" opacity=".8"/>`;
+  q += `<rect x="14" y="16" width="120" height="30" rx="15" fill="rgba(20,22,40,.7)"/><circle cx="34" cy="31" r="7" fill="#ff4d4d"/>${txt(84, 37, '高光录制中', 14, '#fff', { stroke: false })}`;
+  q += badge(350, 31, 6);
+
+  const svg = document.getElementById('horizontal');
+  let s = `<rect width="1100" height="720" fill="#f4f1ea"/>`;
+  s += `<rect x="22" y="18" width="391" height="683" rx="40" fill="#15161f"/>`;
+  s += `<clipPath id="scrH"><rect x="30" y="26" width="${W}" height="${H}" rx="32"/></clipPath>`;
+  s += `<g clip-path="url(#scrH)"><g transform="translate(30 26)">${p}</g></g>`;
+  const k2 = 0.6, px = 448, py = 104;
+  s += `<rect x="${px - 5}" y="${py - 5}" width="${W * k2 + 10}" height="${H * k2 + 10}" rx="24" fill="#15161f"/>`;
+  s += `<clipPath id="scrH2"><rect x="${px}" y="${py}" width="${W * k2}" height="${H * k2}" rx="19"/></clipPath>`;
+  s += `<g clip-path="url(#scrH2)"><g transform="translate(${px} ${py}) scale(${k2})">${q}</g></g>`;
+  s += `<text x="${px + W * k2 / 2}" y="${py + H * k2 + 34}" font-size="16" fill="${C.ink}" text-anchor="middle">连锁够长时：高光全屏 1.5 秒</text>`;
+  s += `<text x="${px + W * k2 / 2}" y="${py + H * k2 + 56}" font-size="13" fill="#5d5770" text-anchor="middle">镜头拉近、界面收起、自动录屏</text>`;
+  s += `<path d="M${px - 26},${py + 150} l18,0 m-7,-7 l7,7 l-7,7" stroke="#b9b2c8" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+  s += `<text x="448" y="52" font-size="24" fill="${C.ink}">竖屏 + 横版战斗（示意）</text>`;
+  s += `<text x="448" y="78" font-size="13" fill="#7a7488">左：平时的主界面；右：连锁够长时的高光时刻</text>`;
+  const notes = [
+    ['战斗区（上半屏约 48%）', '英雄在左边守城，怪从右边来；|三排有纵深，同屏 15～25 只'],
+    ['城墙', '怪打到墙边扣城墙血，|墙倒了才算这一关失败'],
+    ['连锁', '像导火索一样从左往右一路烧过去'],
+    ['英雄栏', '点头像换人，右边是大招'],
+    ['成长区（下半屏）', '符文、强化、宝箱都在这里，|一边看战斗一边升级'],
+    ['高光全屏', '连锁够长时镜头拉近、界面收起，|同时自动录屏；投放视频就从这里录'],
+  ];
+  notes.forEach(([t, d], i) => {
+    const y = 132 + i * 92, x = 700;
+    s += badge(x + 12, y, i + 1);
+    s += `<text x="${x + 32}" y="${y + 5}" font-size="16" fill="${C.ink}">${t}</text>`;
+    d.split('|').forEach((ln, j) => { s += `<text x="${x + 32}" y="${y + 28 + j * 19}" font-size="13" fill="#5d5770">${ln}</text>`; });
   });
   svg.innerHTML = s;
 })();
