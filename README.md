@@ -5,6 +5,7 @@
 一条通道，三个英雄轮流上场。放着不管就自动割草；想爽的时候点一下换人，把上一个人留下的印记一口气引爆。
 
 - 设计文档：[docs/游戏设计文档.md](docs/游戏设计文档.md)
+- 市场调研与差异化：[docs/市场调研与差异化.md](docs/市场调研与差异化.md)
 - 主界面示意：[docs/images/main-screen.png](docs/images/main-screen.png)
 - 接力连携示意：[docs/images/relay-combo.png](docs/images/relay-combo.png)
 
