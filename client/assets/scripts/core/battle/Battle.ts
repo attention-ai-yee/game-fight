@@ -261,7 +261,7 @@ export class Battle {
       const elite = this.wave === s.waves && i === 0;
       const row = this.rng.int(0, this.cfg.rows - 1);
       const hp = ec.hp * hpMult * (elite ? s.eliteHpMult : 1);
-      x += 22 + this.rng.next() * 30;
+      x += 14 + this.rng.next() * 22;
       const e: Enemy = {
         id: this.nextId++,
         kind,

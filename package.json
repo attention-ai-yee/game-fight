@@ -6,7 +6,6 @@
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "proto": "node tools/build-proto.mjs",
-    "proto:watch": "node tools/build-proto.mjs --watch",
     "sim": "esbuild tools/sim.ts --bundle --platform=node --outfile=dist/sim.cjs --log-level=warning && node dist/sim.cjs"
   },
   "devDependencies": {

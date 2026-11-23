@@ -109,7 +109,7 @@ export interface BattleConfig {
 }
 
 export const DEFAULT_CONFIG: BattleConfig = {
-  laneLength: 1000,
+  laneLength: 520,
   rowGap: 60,
   rows: 3,
   heroX: 55,
@@ -141,9 +141,9 @@ export const DEFAULT_CONFIG: BattleConfig = {
   },
 
   enemies: {
-    grunt: { hp: 36, speed: 50, dps: 4, gold: 2, size: 1 },
-    runner: { hp: 22, speed: 88, dps: 3, gold: 2, size: 0.82 },
-    tank: { hp: 120, speed: 30, dps: 9, gold: 6, size: 1.35 },
+    grunt: { hp: 36, speed: 58, dps: 3.4, gold: 2, size: 1 },
+    runner: { hp: 22, speed: 95, dps: 2.6, gold: 2, size: 0.82 },
+    tank: { hp: 120, speed: 34, dps: 7.6, gold: 6, size: 1.35 },
   },
 
   stage: {
